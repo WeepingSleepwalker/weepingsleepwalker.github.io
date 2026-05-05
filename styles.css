@@ -125,6 +125,7 @@ ul {
 .site-nav a:focus-visible::after,
 .page-home .site-nav a[href="index.html"]::after,
 .page-work .site-nav a[href="work.html"]::after,
+.page-writing .site-nav a[href="writing.html"]::after,
 .page-about .site-nav a[href="about.html"]::after,
 .page-contact .site-nav a[href="contact.html"]::after {
   transform: scaleX(1);
@@ -339,6 +340,11 @@ h2 {
   border-radius: var(--radius-medium);
 }
 
+.panel .text-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+}
+
 .panel h2,
 .feature h2 {
   font-size: 2.2rem;
@@ -372,6 +378,15 @@ h2 {
   color: var(--accent-deep);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18rem;
+}
+
+.email-link {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16rem;
 }
 
 .page-main {
@@ -478,9 +493,149 @@ h2 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.resume-layout {
+  margin-top: 1.4rem;
+}
+
+.resume-sheet {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.resume-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(17rem, 0.9fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding-bottom: 1.3rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.resume-header h2 {
+  margin-bottom: 0;
+  font-size: clamp(2.3rem, 4vw, 3.4rem);
+}
+
+.resume-contact {
+  color: var(--muted);
+}
+
+.resume-contact p {
+  margin-bottom: 0.4rem;
+}
+
+.resume-contact p:last-child {
+  margin-bottom: 0;
+}
+
+.resume-section + .resume-section {
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.resume-section h3 {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.resume-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1.2rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid rgba(23, 19, 15, 0.08);
+}
+
+.resume-section .resume-item:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.resume-item__title,
+.resume-item__detail,
+.resume-item__note,
+.resume-item__meta {
+  margin: 0;
+}
+
+.resume-item__title {
+  font-weight: 600;
+}
+
+.resume-item__detail,
+.resume-item__note {
+  color: var(--muted);
+}
+
+.resume-item__note {
+  margin-top: 0.45rem;
+  max-width: 42rem;
+}
+
+.resume-item__meta {
+  color: var(--accent-deep);
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.writing-layout {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.essay {
+  max-width: 50rem;
+}
+
+.essay-header {
+  margin-bottom: 1.5rem;
+}
+
+.essay-meta {
+  margin-bottom: 0.9rem;
+  color: var(--accent-deep);
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.essay h2 {
+  margin-bottom: 0.9rem;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 0.98;
+}
+
+.essay p {
+  margin-bottom: 1.1rem;
+  font-size: 1.04rem;
+  color: var(--ink);
+}
+
+.essay p:last-child {
+  margin-bottom: 0;
+}
+
+.essay blockquote {
+  margin: 1.8rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(157, 82, 49, 0.35);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1.12;
+}
+
 .contact-card h2 {
   margin-bottom: 0.7rem;
   font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.contact-card .email-link {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.2;
 }
 
 .site-footer {
@@ -490,10 +645,18 @@ h2 {
 
 .footer-shell {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 1.2rem 0 1.8rem;
   color: var(--muted);
+}
+
+.info-card .email-link,
+.footer-shell .email-link {
+  font-size: 0.98rem;
+  line-height: 1.35;
 }
 
 [data-reveal] {
@@ -513,6 +676,7 @@ h2 {
   .hero-grid,
   .feature-grid,
   .two-column,
+  .resume-header,
   .contact-grid,
   .info-strip,
   .section-grid,
@@ -527,6 +691,10 @@ h2 {
 
   .theme-list {
     text-align: left;
+  }
+
+  .resume-item {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -37,6 +37,10 @@ body {
   line-height: 1.6;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -407,10 +411,36 @@ h2 {
 .work-card {
   overflow: hidden;
   border-radius: 26px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.work-card:hover,
+.work-card:focus-within {
+  transform: translateY(-4px);
+  border-color: rgba(23, 19, 15, 0.18);
+  box-shadow: 0 30px 72px rgba(27, 22, 18, 0.18);
+}
+
+.work-trigger {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.work-trigger:focus-visible {
+  outline: none;
 }
 
 .work-image {
-  min-height: 320px;
+  height: 320px;
   background-color: #dbc7af;
 }
 
@@ -451,6 +481,25 @@ h2 {
     linear-gradient(180deg, #94755a 0%, #583a2b 60%, #2f1e17 100%);
 }
 
+.work-image--photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(23, 19, 15, 0.04)),
+    linear-gradient(160deg, #e0ceb8 0%, #c7a47d 100%);
+}
+
+.work-image__asset {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  box-shadow:
+    0 18px 36px rgba(23, 19, 15, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
 .work-copy {
   padding: 1.25rem 1.25rem 1.45rem;
 }
@@ -466,6 +515,120 @@ h2 {
   font-size: 0.88rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.work-description {
+  margin-bottom: 0.9rem;
+}
+
+.work-expand-label {
+  margin-bottom: 0;
+  color: var(--accent-deep);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.work-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+}
+
+.work-modal[hidden] {
+  display: none;
+}
+
+.work-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(23, 19, 15, 0.62);
+  cursor: pointer;
+}
+
+.work-modal__panel {
+  position: relative;
+  width: min(980px, 100%);
+  max-height: calc(100vh - 2.4rem);
+  padding: 1rem;
+  border: 1px solid rgba(23, 19, 15, 0.08);
+  border-radius: 30px;
+  background: rgba(243, 235, 223, 0.95);
+  box-shadow: 0 36px 90px rgba(18, 15, 11, 0.35);
+  backdrop-filter: blur(18px);
+  overflow: auto;
+}
+
+.work-modal__close {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(23, 19, 15, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.92);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.work-modal__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.work-modal__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: min(68vh, 620px);
+  border-radius: 24px;
+  background-color: #dbc7af;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 18px 40px rgba(23, 19, 15, 0.12);
+}
+
+.work-modal__image--photo {
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(23, 19, 15, 0.04)),
+    linear-gradient(160deg, #e0ceb8 0%, #c7a47d 100%);
+}
+
+.work-modal__asset {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.work-modal__copy {
+  padding: 0.8rem 0.45rem 0.25rem;
+}
+
+.work-modal__copy h2 {
+  margin-bottom: 0.7rem;
+  font-size: clamp(2.5rem, 5vw, 4.1rem);
+  line-height: 0.96;
+}
+
+.work-modal__copy .work-meta {
+  margin-bottom: 1rem;
+}
+
+.work-modal__copy p:last-child {
+  margin-bottom: 0;
 }
 
 .two-column {
@@ -691,6 +854,7 @@ h2 {
   .feature-grid,
   .two-column,
   .resume-header,
+  .work-modal__content,
   .contact-grid,
   .info-strip,
   .section-grid,
@@ -709,6 +873,10 @@ h2 {
 
   .resume-item {
     grid-template-columns: 1fr;
+  }
+
+  .work-modal__image {
+    height: min(58vh, 460px);
   }
 }
 
@@ -761,6 +929,28 @@ h2 {
 
   .hero-visual__frame {
     min-height: 340px;
+  }
+
+  .work-modal {
+    padding: 0.75rem;
+  }
+
+  .work-modal__panel {
+    max-height: calc(100vh - 1.5rem);
+    padding: 0.75rem;
+    border-radius: 24px;
+  }
+
+  .work-modal__close {
+    margin-bottom: 0.65rem;
+  }
+
+  .work-modal__image {
+    height: min(42vh, 320px);
+  }
+
+  .work-modal__copy {
+    padding: 0.25rem 0.1rem 0;
   }
 
   .footer-shell {

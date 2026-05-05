@@ -55,77 +55,137 @@
 
       <section class="work-grid">
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--01" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 01</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              Use this first slot for the strongest image in the portfolio, even
-              if it is not the most recent piece.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--01" aria-hidden="true"></div>
+            <div class="work-copy">
+              <h2>Work 01</h2>
+              <p class="work-meta">Title / Year / Materials / Dimensions</p>
+              <p class="work-description">
+                Use this first slot for the strongest image in the portfolio, even
+                if it is not the most recent piece.
+              </p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
 
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--02" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 02</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              This position works well for the piece closest in spirit to the
-              contest submission or current direction.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--02" aria-hidden="true"></div>
+            <div class="work-copy">
+              <h2>Work 02</h2>
+              <p class="work-meta">Title / Year / Materials / Dimensions</p>
+              <p class="work-description">
+                This position works well for the piece closest in spirit to the
+                contest submission or current direction.
+              </p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
 
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--03" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 03</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              Keep captions short. If the image is doing its job, the text only
-              needs to clarify, not explain.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--03" aria-hidden="true"></div>
+            <div class="work-copy">
+              <h2>Work 03</h2>
+              <p class="work-meta">Title / Year / Materials / Dimensions</p>
+              <p class="work-description">
+                Keep captions short. If the image is doing its job, the text only
+                needs to clarify, not explain.
+              </p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
 
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--04" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 04</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              Place a work here that expands the range of the page without
-              breaking the overall coherence of the practice.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--04" aria-hidden="true"></div>
+            <div class="work-copy">
+              <h2>Work 04</h2>
+              <p class="work-meta">Title / Year / Materials / Dimensions</p>
+              <p class="work-description">
+                Place a work here that expands the range of the page without
+                breaking the overall coherence of the practice.
+              </p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
 
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--05" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 05</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              Material intelligence reads quickly online. Good details and clear
-              installation views usually earn their space.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--photo" aria-hidden="true">
+              <img
+                class="work-image__asset"
+                src="assets/workpics/frontal-work.png"
+                alt="Little Baby under a Pine installation view"
+                data-work-modal-src="assets/workpics/frontal-view.png"
+              />
+            </div>
+            <div class="work-copy">
+              <h2>Little Baby under a Pine</h2>
+              <p class="work-meta">2019 / Marble, Lasers, Pine Tree / Installation / 4' by 4' by 4'</p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
 
         <article class="work-card" data-reveal>
-          <div class="work-image work-image--06" aria-hidden="true"></div>
-          <div class="work-copy">
-            <h2>Work 06</h2>
-            <p class="work-meta">Title / Year / Materials / Dimensions</p>
-            <p>
-              Close with a piece that deepens the overall arc instead of diluting
-              it. Editing matters as much as volume.
-            </p>
-          </div>
+          <button class="work-trigger" type="button" data-work-trigger aria-haspopup="dialog">
+            <div class="work-image work-image--photo" aria-hidden="true">
+              <img
+                class="work-image__asset"
+                src="assets/workpics/source-of-mirth-work.jpg"
+                alt="Source of Mirth sculpture view"
+                data-work-modal-src="assets/workpics/source-of-mirth-view.jpg"
+              />
+            </div>
+            <div class="work-copy">
+              <h2>Source of Mirth</h2>
+              <p class="work-meta">2018 / Glass concrete / Ceramic / Neon / 18" by 7" by 7"</p>
+              <p class="work-expand-label">Click to expand</p>
+            </div>
+          </button>
         </article>
       </section>
+
+      <div class="work-modal" data-work-modal hidden>
+        <button
+          class="work-modal__backdrop"
+          type="button"
+          data-work-close
+          tabindex="-1"
+          aria-hidden="true"
+        ></button>
+        <div
+          class="work-modal__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="work-modal-title"
+        >
+          <button
+            class="work-modal__close"
+            type="button"
+            data-work-close
+            aria-label="Close expanded work view"
+          >
+            Close
+          </button>
+          <div class="work-modal__content">
+            <div class="work-modal__image" data-work-modal-image aria-hidden="true">
+              <img class="work-modal__asset" data-work-modal-asset alt="" hidden />
+            </div>
+            <div class="work-modal__copy">
+              <p class="eyebrow">Expanded View</p>
+              <h2 id="work-modal-title" data-work-modal-title></h2>
+              <p class="work-meta" data-work-modal-meta></p>
+              <p data-work-modal-description hidden></p>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer class="site-footer">

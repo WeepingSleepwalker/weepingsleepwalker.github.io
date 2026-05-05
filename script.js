@@ -43,7 +43,10 @@ if ("IntersectionObserver" in window) {
 const homeCanvas = document.querySelector("[data-home-canvas]");
 
 if (homeCanvas) {
-  const ctx = homeCanvas.getContext("2d");
+  const ctx = homeCanvas.getContext("2d", {
+    alpha: false,
+    desynchronized: true,
+  });
 
   if (ctx) {
     const PHI = (1 + Math.sqrt(5)) / 2;
@@ -115,6 +118,7 @@ if (homeCanvas) {
     let width = baseWidth;
     let height = baseHeight;
     let animationFrameId = 0;
+    let lastFrameTime = 0;
     let resizeObserver;
     let hasInitializedCanvas = false;
 
@@ -133,7 +137,7 @@ if (homeCanvas) {
 
     const resizeCanvas = () => {
       const rect = homeCanvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
       width = Math.max(320, Math.round(rect.width));
       height = Math.max(320, Math.round(rect.height));
@@ -157,7 +161,66 @@ if (homeCanvas) {
       return [vector[0] * scale, vector[1] * scale, vector[2], scale];
     };
 
-    const render = () => {
+    const getProjectedState = (centerX, centerY, centerZ, radius, fov, camZ, rotation) => {
+      const transformed = new Array(verts.length);
+      const projected = new Array(verts.length);
+      let minX = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+
+      verts.forEach((vector, index) => {
+        let x = vector[0] * radius;
+        let y = vector[1] * radius;
+        let z = vector[2] * radius;
+
+        const xRotX = x;
+        const yRotX = y * rotation.cosX - z * rotation.sinX;
+        const zRotX = y * rotation.sinX + z * rotation.cosX;
+
+        const xRotY = xRotX * rotation.cosY + zRotX * rotation.sinY;
+        const yRotY = yRotX;
+        const zRotY = -xRotX * rotation.sinY + zRotX * rotation.cosY;
+
+        const xRotZ = xRotY * rotation.cosZ - yRotY * rotation.sinZ;
+        const yRotZ = xRotY * rotation.sinZ + yRotY * rotation.cosZ;
+        const zRotZ = zRotY;
+
+        x = xRotZ + (centerX - width / 2);
+        y = yRotZ + (centerY - height / 2);
+        z = zRotZ + centerZ;
+
+        transformed[index] = [x, y, z];
+
+        const point = project(transformed[index], fov, camZ);
+        projected[index] = point;
+
+        const pointRadius = Math.max(1.5, point[3] * 3);
+        const screenX = point[0] + width / 2;
+        const screenY = point[1] + height / 2;
+
+        minX = Math.min(minX, screenX - pointRadius);
+        maxX = Math.max(maxX, screenX + pointRadius);
+        minY = Math.min(minY, screenY - pointRadius);
+        maxY = Math.max(maxY, screenY + pointRadius);
+      });
+
+      return {
+        transformed,
+        projected,
+        minX,
+        maxX,
+        minY,
+        maxY,
+      };
+    };
+
+    const render = (now = 0) => {
+      const frameDelta = lastFrameTime ? Math.min(32, now - lastFrameTime) : 16.67;
+      const deltaFactor = frameDelta / 16.67;
+
+      lastFrameTime = now;
+
       const baseScale = Math.min(width / baseWidth, height / baseHeight);
       const fov = 650 * baseScale;
       const camZ = 500 * baseScale;
@@ -165,58 +228,26 @@ if (homeCanvas) {
       const edgeInset = 10 * baseScale;
       const depth = 500 * baseScale;
 
-      const getProjectedState = (centerX, centerY, centerZ) => {
-        const transformed = verts.map((vector) => {
-          let world = vector.map((value) => value * radius);
-
-          world = rotateX(world, rx);
-          world = rotateY(world, ry);
-          world = rotateZ(world, rz);
-
-          return [
-            world[0] + (centerX - width / 2),
-            world[1] + (centerY - height / 2),
-            world[2] + centerZ,
-          ];
-        });
-
-        const projected = transformed.map((vector) => project(vector, fov, camZ));
-        let minX = Number.POSITIVE_INFINITY;
-        let maxX = Number.NEGATIVE_INFINITY;
-        let minY = Number.POSITIVE_INFINITY;
-        let maxY = Number.NEGATIVE_INFINITY;
-
-        projected.forEach((point) => {
-          const pointRadius = Math.max(1.5, point[3] * 3);
-          const screenX = point[0] + width / 2;
-          const screenY = point[1] + height / 2;
-
-          minX = Math.min(minX, screenX - pointRadius);
-          maxX = Math.max(maxX, screenX + pointRadius);
-          minY = Math.min(minY, screenY - pointRadius);
-          maxY = Math.max(maxY, screenY + pointRadius);
-        });
-
-        return {
-          transformed,
-          projected,
-          minX,
-          maxX,
-          minY,
-          maxY,
-        };
-      };
-
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, width, height);
 
-      rx += vrx;
-      ry += vry;
-      rz += vrz;
-      let nextPx = px + vx * baseScale;
-      let nextPy = py + vy * baseScale;
-      let nextPz = pz + vz * baseScale;
+      rx += vrx * deltaFactor;
+      ry += vry * deltaFactor;
+      rz += vrz * deltaFactor;
+
+      const rotation = {
+        sinX: Math.sin(rx),
+        cosX: Math.cos(rx),
+        sinY: Math.sin(ry),
+        cosY: Math.cos(ry),
+        sinZ: Math.sin(rz),
+        cosZ: Math.cos(rz),
+      };
+
+      let nextPx = px + vx * baseScale * deltaFactor;
+      let nextPy = py + vy * baseScale * deltaFactor;
+      let nextPz = pz + vz * baseScale * deltaFactor;
 
       if (nextPz < -depth / 2) {
         nextPz = -depth / 2;
@@ -228,30 +259,30 @@ if (homeCanvas) {
         vz = -Math.abs(vz);
       }
 
-      let state = getProjectedState(nextPx, nextPy, nextPz);
+      let state = getProjectedState(nextPx, nextPy, nextPz, radius, fov, camZ, rotation);
 
       if (state.minX < edgeInset) {
         nextPx += edgeInset - state.minX;
         vx = Math.abs(vx);
-        state = getProjectedState(nextPx, nextPy, nextPz);
+        state = getProjectedState(nextPx, nextPy, nextPz, radius, fov, camZ, rotation);
       }
 
       if (state.maxX > width - edgeInset) {
         nextPx -= state.maxX - (width - edgeInset);
         vx = -Math.abs(vx);
-        state = getProjectedState(nextPx, nextPy, nextPz);
+        state = getProjectedState(nextPx, nextPy, nextPz, radius, fov, camZ, rotation);
       }
 
       if (state.minY < edgeInset) {
         nextPy += edgeInset - state.minY;
         vy = Math.abs(vy);
-        state = getProjectedState(nextPx, nextPy, nextPz);
+        state = getProjectedState(nextPx, nextPy, nextPz, radius, fov, camZ, rotation);
       }
 
       if (state.maxY > height - edgeInset) {
         nextPy -= state.maxY - (height - edgeInset);
         vy = -Math.abs(vy);
-        state = getProjectedState(nextPx, nextPy, nextPz);
+        state = getProjectedState(nextPx, nextPy, nextPz, radius, fov, camZ, rotation);
       }
 
       px = nextPx;
@@ -306,7 +337,7 @@ if (homeCanvas) {
     };
 
     resizeCanvas();
-    render();
+    animationFrameId = window.requestAnimationFrame(render);
 
     if ("ResizeObserver" in window) {
       resizeObserver = new ResizeObserver(() => {

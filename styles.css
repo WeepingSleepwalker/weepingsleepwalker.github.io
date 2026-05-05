@@ -633,9 +633,23 @@ h2 {
   font-size: clamp(1.8rem, 3vw, 2.4rem);
 }
 
+.contact-card h2 a {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
 .contact-card .email-link {
   font-size: clamp(1.1rem, 2vw, 1.45rem);
   line-height: 1.2;
+}
+
+.contact-card .social-link {
+  font-family: "Public Sans", "Avenir Next", "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 1.7vw, 1.18rem);
+  font-weight: 600;
 }
 
 .site-footer {

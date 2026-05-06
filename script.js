@@ -85,36 +85,6 @@ if (homeCanvas) {
       }
     }
 
-    const rotateX = (vector, angle) => {
-      const [x, y, z] = vector;
-
-      return [
-        x,
-        y * Math.cos(angle) - z * Math.sin(angle),
-        y * Math.sin(angle) + z * Math.cos(angle),
-      ];
-    };
-
-    const rotateY = (vector, angle) => {
-      const [x, y, z] = vector;
-
-      return [
-        x * Math.cos(angle) + z * Math.sin(angle),
-        y,
-        -x * Math.sin(angle) + z * Math.cos(angle),
-      ];
-    };
-
-    const rotateZ = (vector, angle) => {
-      const [x, y, z] = vector;
-
-      return [
-        x * Math.cos(angle) - y * Math.sin(angle),
-        x * Math.sin(angle) + y * Math.cos(angle),
-        z,
-      ];
-    };
-
     let width = baseWidth;
     let height = baseHeight;
     let animationFrameId = 0;
@@ -349,6 +319,89 @@ if (homeCanvas) {
     }
   }
 }
+
+const gravityWells = document.querySelectorAll("[data-gravity-well]");
+
+gravityWells.forEach((gravityWell) => {
+  const planeGrid = gravityWell.querySelector("[data-gravity-plane-grid]");
+  const planeSpokes = gravityWell.querySelector("[data-gravity-plane-spokes]");
+  const shaftLines = gravityWell.querySelector("[data-gravity-shaft-lines]");
+  const shaftRings = gravityWell.querySelector("[data-gravity-shaft-rings]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!planeGrid || !planeSpokes || !shaftLines || !shaftRings) {
+    return;
+  }
+
+  const planeRingSizes = [16, 24, 34, 46, 58, 72, 88, 106, 126, 148, 172];
+  const spokeCount = 12;
+  const shaftLinePositions = [8, 20, 31, 42, 50, 58, 69, 80, 92];
+  const shaftRingCount = 18;
+
+  const planeRingFragment = document.createDocumentFragment();
+  planeRingSizes.forEach((size) => {
+    const ring = document.createElement("span");
+    ring.className = "gravity-well__ring";
+    ring.style.setProperty("--size", String(size));
+    planeRingFragment.append(ring);
+  });
+  planeGrid.append(planeRingFragment);
+
+  const spokeFragment = document.createDocumentFragment();
+  for (let index = 0; index < spokeCount; index += 1) {
+    const spoke = document.createElement("span");
+    spoke.className = "gravity-well__spoke";
+    spoke.style.setProperty("--angle", `${(180 / spokeCount) * index}deg`);
+    spokeFragment.append(spoke);
+  }
+  planeSpokes.append(spokeFragment);
+
+  const shaftLineFragment = document.createDocumentFragment();
+  shaftLinePositions.forEach((position) => {
+    const line = document.createElement("span");
+    line.className = "gravity-well__shaft-line";
+    line.style.setProperty("--x", String(position));
+    shaftLineFragment.append(line);
+  });
+  shaftLines.append(shaftLineFragment);
+
+  const shaftRingElements = Array.from({ length: shaftRingCount }, () => {
+    const ring = document.createElement("span");
+    ring.className = "gravity-well__shaft-ring";
+    shaftRings.append(ring);
+    return ring;
+  });
+
+  const renderShaft = (timeMs = 0) => {
+    const time = timeMs * 0.00009;
+
+    shaftRingElements.forEach((ring, index) => {
+      const cycle = (time + index / shaftRingCount) % 1;
+      const rise = 1 - Math.pow(1 - cycle, 1.35);
+      const width = 16 + rise * 74;
+      const height = 4 + rise * 20;
+      const top = 92 - rise * 106;
+      const opacity = 0.1 + Math.sin(cycle * Math.PI) * 0.62;
+
+      ring.style.width = `${width}%`;
+      ring.style.height = `${height}%`;
+      ring.style.top = `${top}%`;
+      ring.style.opacity = opacity.toFixed(2);
+    });
+  };
+
+  if (reducedMotion) {
+    renderShaft();
+    return;
+  }
+
+  const animateShaft = (timeMs) => {
+    renderShaft(timeMs);
+    window.requestAnimationFrame(animateShaft);
+  };
+
+  window.requestAnimationFrame(animateShaft);
+});
 
 const workTriggers = document.querySelectorAll("[data-work-trigger]");
 const workModal = document.querySelector("[data-work-modal]");

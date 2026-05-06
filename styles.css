@@ -285,6 +285,219 @@ h2 {
   background: #000;
 }
 
+.hero-visual__frame--gravity {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.96), rgba(247, 240, 231, 0.95) 48%, rgba(225, 210, 187, 0.88) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(157, 82, 49, 0.08));
+}
+
+.hero-visual__frame--gravity::before,
+.hero-visual__frame--gravity::after {
+  display: none;
+}
+
+.gravity-well,
+.gravity-well__scene,
+.gravity-well__plane-grid,
+.gravity-well__plane-spokes,
+.gravity-well__shaft-lines,
+.gravity-well__shaft-rings {
+  position: absolute;
+  inset: 0;
+}
+
+.gravity-well {
+  overflow: hidden;
+  color: rgba(23, 19, 15, 0.48);
+}
+
+.gravity-well__scene {
+  perspective: 1180px;
+  perspective-origin: 50% 28%;
+  transform-style: preserve-3d;
+}
+
+.gravity-well__plane {
+  position: absolute;
+  top: 5%;
+  left: 4%;
+  width: 92%;
+  height: 68%;
+  transform: rotateX(68deg);
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+
+.gravity-well__plane-surface {
+  position: absolute;
+  inset: 0;
+  border: 2px solid currentColor;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08)),
+    radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.12), transparent 46%);
+  box-shadow:
+    0 24px 42px rgba(23, 19, 15, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+  backface-visibility: hidden;
+}
+
+.gravity-well__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--size) * 1%);
+  height: calc(var(--size) * 1%);
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.92;
+}
+
+.gravity-well__spoke {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180%;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(var(--angle));
+  opacity: 0.72;
+}
+
+.gravity-well__aperture {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 23%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateZ(6px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(247, 240, 231, 0.98) 0 46%, rgba(247, 240, 231, 0.98) 47%, rgba(23, 19, 15, 0.2) 59%, transparent 63%);
+  box-shadow:
+    0 0 0 1.4px currentColor,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+}
+
+.gravity-well__aperture::before {
+  content: "";
+  position: absolute;
+  inset: 20%;
+  border: 1.2px solid rgba(23, 19, 15, 0.34);
+  border-radius: 50%;
+}
+
+.gravity-well__pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(23, 19, 15, 0.45);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  animation: gravity-pulse 5.2s linear infinite;
+}
+
+.gravity-well__pulse--delayed {
+  animation-delay: 1.73s;
+}
+
+.gravity-well__pulse--late {
+  animation-delay: 3.46s;
+}
+
+.gravity-well__shaft {
+  position: absolute;
+  left: 50%;
+  bottom: 5.5%;
+  width: 22%;
+  height: 49%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.gravity-well__shaft-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: polygon(16% 0, 84% 0, 61% 100%, 39% 100%);
+  background:
+    linear-gradient(90deg, rgba(23, 19, 15, 0.07), transparent 12% 88%, rgba(23, 19, 15, 0.07)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(23, 19, 15, 0.04));
+}
+
+.gravity-well__shaft-edge {
+  position: absolute;
+  top: -1%;
+  width: 1.5px;
+  height: 102%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.gravity-well__shaft-edge--left {
+  left: 26%;
+  transform-origin: top;
+  transform: rotate(6deg);
+}
+
+.gravity-well__shaft-edge--right {
+  right: 26%;
+  transform-origin: top;
+  transform: rotate(-6deg);
+}
+
+.gravity-well__shaft-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--x) * 1%);
+  width: 1px;
+  background: rgba(23, 19, 15, 0.42);
+}
+
+.gravity-well__shaft-ring {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  border: 1.3px solid rgba(23, 19, 15, 0.48);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  will-change: top, width, height, opacity;
+}
+
+@keyframes gravity-pulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.68);
+  }
+
+  10% {
+    opacity: 0.7;
+  }
+
+  55% {
+    opacity: 0.42;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.42);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gravity-well__pulse {
+    animation: none;
+    opacity: 0.26;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 .hero-visual__frame::before,
 .hero-visual__frame::after {
   content: "";
@@ -390,6 +603,12 @@ h2 {
 
 .feature-highlight {
   padding: 1.8rem;
+}
+
+.feature-highlight .text-link {
+  display: inline-block;
+  margin-top: 0.35rem;
+  margin-right: 1rem;
 }
 
 .quote-panel {
@@ -690,6 +909,15 @@ h2 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.contact-card--gravity {
+  grid-column: 1 / -1;
+  padding: 1.15rem;
+}
+
+.contact-gravity-frame {
+  min-height: 560px;
+}
+
 .resume-layout {
   margin-top: 1.4rem;
 }
@@ -963,6 +1191,27 @@ h2 {
 
   .hero-visual__frame {
     min-height: 470px;
+  }
+
+  .contact-gravity-frame {
+    min-height: 420px;
+  }
+
+  .gravity-well__plane {
+    top: 7%;
+    left: 2%;
+    width: 96%;
+    height: 72%;
+    transform: rotateX(70deg);
+  }
+
+  .gravity-well__aperture {
+    width: 26%;
+  }
+
+  .gravity-well__shaft {
+    width: 26%;
+    height: 52%;
   }
 
   .work-modal {

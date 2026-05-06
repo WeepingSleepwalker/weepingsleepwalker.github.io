@@ -9,7 +9,7 @@ This project is a no-build static website prepared for free hosting on GitHub Pa
 - `about.html` contains the bio and artist statement.
 - `contact.html` contains direct contact details.
 - `styles.css` contains the shared design system and responsive layout.
-- `script.js` contains the mobile menu and reveal animations.
+- `script.js` contains the mobile menu, reveal animations, and canvas interactions.
 
 ## Before Publishing
 
@@ -27,10 +27,18 @@ This project is a no-build static website prepared for free hosting on GitHub Pa
 
 ## Local Preview
 
+If you want a one-command local preview, install Node.js first.
+
 From this folder, run:
+
+```bash
+npm run dev
+```
+
+Then open `http://127.0.0.1:8000`.
+
+If you do not want to use npm, the direct fallback is:
 
 ```bash
 python3 -m http.server 8000
 ```
-
-Then open `http://localhost:8000`.

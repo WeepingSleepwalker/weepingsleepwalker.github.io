@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Node / local tooling
+node_modules/
+npm-debug.log*
+
+# Local environment files
+.env
+.env.*
+*.local
+
+# Editor settings
+.vscode/
+.idea/

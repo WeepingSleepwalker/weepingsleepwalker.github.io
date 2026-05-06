@@ -320,87 +320,250 @@ if (homeCanvas) {
   }
 }
 
-const gravityWells = document.querySelectorAll("[data-gravity-well]");
+const toricCanvases = document.querySelectorAll("[data-toric-canvas]");
 
-gravityWells.forEach((gravityWell) => {
-  const planeGrid = gravityWell.querySelector("[data-gravity-plane-grid]");
-  const planeSpokes = gravityWell.querySelector("[data-gravity-plane-spokes]");
-  const shaftLines = gravityWell.querySelector("[data-gravity-shaft-lines]");
-  const shaftRings = gravityWell.querySelector("[data-gravity-shaft-rings]");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+toricCanvases.forEach((canvas) => {
+  const ctx = canvas.getContext("2d", {
+    alpha: false,
+    desynchronized: true,
+  });
 
-  if (!planeGrid || !planeSpokes || !shaftLines || !shaftRings) {
+  if (!ctx) {
     return;
   }
 
-  const planeRingSizes = [16, 24, 34, 46, 58, 72, 88, 106, 126, 148, 172];
-  const spokeCount = 12;
-  const shaftLinePositions = [8, 20, 31, 42, 50, 58, 69, 80, 92];
-  const shaftRingCount = 18;
+  const NUM_STREAMS = 48;
+  const STREAM_SPEED = 11.5;
+  const GRAVITY = 0.19;
+  const LAUNCH_SPREAD = 0.32;
+  const SPAWN_INTERVAL = 3;
 
-  const planeRingFragment = document.createDocumentFragment();
-  planeRingSizes.forEach((size) => {
-    const ring = document.createElement("span");
-    ring.className = "gravity-well__ring";
-    ring.style.setProperty("--size", String(size));
-    planeRingFragment.append(ring);
-  });
-  planeGrid.append(planeRingFragment);
+  const ripples = [];
+  const particles = [];
 
-  const spokeFragment = document.createDocumentFragment();
-  for (let index = 0; index < spokeCount; index += 1) {
-    const spoke = document.createElement("span");
-    spoke.className = "gravity-well__spoke";
-    spoke.style.setProperty("--angle", `${(180 / spokeCount) * index}deg`);
-    spokeFragment.append(spoke);
-  }
-  planeSpokes.append(spokeFragment);
+  let width = 680;
+  let height = 520;
+  let centerX = width / 2;
+  let baseY = height - 100;
+  let fov = 500;
+  let torusRadius = 110;
+  let tick = 0;
+  let lastSpawn = 0;
+  let resizeObserver;
 
-  const shaftLineFragment = document.createDocumentFragment();
-  shaftLinePositions.forEach((position) => {
-    const line = document.createElement("span");
-    line.className = "gravity-well__shaft-line";
-    line.style.setProperty("--x", String(position));
-    shaftLineFragment.append(line);
-  });
-  shaftLines.append(shaftLineFragment);
+  const project = (x3, y3, z3) => {
+    const scale = fov / (fov + z3 + height * 0.38);
 
-  const shaftRingElements = Array.from({ length: shaftRingCount }, () => {
-    const ring = document.createElement("span");
-    ring.className = "gravity-well__shaft-ring";
-    shaftRings.append(ring);
-    return ring;
-  });
+    return {
+      x: centerX + x3 * scale,
+      y: baseY + y3 * scale,
+      scale,
+    };
+  };
 
-  const renderShaft = (timeMs = 0) => {
-    const time = timeMs * 0.00009;
+  const spawnStream = (streamIndex) => {
+    const angle = (streamIndex / NUM_STREAMS) * Math.PI * 2;
+    const horizontalSpeed = STREAM_SPEED * LAUNCH_SPREAD;
+    const verticalSpeed =
+      -STREAM_SPEED * Math.sqrt(1 - LAUNCH_SPREAD * LAUNCH_SPREAD);
 
-    shaftRingElements.forEach((ring, index) => {
-      const cycle = (time + index / shaftRingCount) % 1;
-      const rise = 1 - Math.pow(1 - cycle, 1.35);
-      const width = 16 + rise * 74;
-      const height = 4 + rise * 20;
-      const top = 92 - rise * 106;
-      const opacity = 0.1 + Math.sin(cycle * Math.PI) * 0.62;
-
-      ring.style.width = `${width}%`;
-      ring.style.height = `${height}%`;
-      ring.style.top = `${top}%`;
-      ring.style.opacity = opacity.toFixed(2);
+    particles.push({
+      x: 0,
+      y: -5,
+      z: 0,
+      vx: Math.cos(angle) * horizontalSpeed,
+      vy: verticalSpeed,
+      vz: Math.sin(angle) * horizontalSpeed,
+      size: 1.8,
+      landed: false,
+      tail: [],
     });
   };
 
-  if (reducedMotion) {
-    renderShaft();
-    return;
-  }
-
-  const animateShaft = (timeMs) => {
-    renderShaft(timeMs);
-    window.requestAnimationFrame(animateShaft);
+  const spawnRipple = (px, pz) => {
+    ripples.push({
+      px,
+      pz,
+      r: 2,
+      maxR: torusRadius * 0.32,
+      alpha: 0.7,
+      speed: Math.max(0.9, torusRadius * 0.008),
+    });
   };
 
-  window.requestAnimationFrame(animateShaft);
+  const resetScene = () => {
+    ripples.length = 0;
+    particles.length = 0;
+    tick = 0;
+    lastSpawn = 0;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, width, height);
+  };
+
+  const resizeCanvas = () => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    width = Math.max(360, Math.round(rect.width));
+    height = Math.max(420, Math.round(rect.height));
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    centerX = width / 2;
+    baseY = height - Math.max(92, height * 0.16);
+    fov = Math.min(width * 0.9, height * 1.25);
+    torusRadius = Math.min(width * 0.24, height * 0.21);
+
+    resetScene();
+  };
+
+  const render = () => {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, width, height);
+
+    tick += 1;
+
+    if (tick - lastSpawn >= SPAWN_INTERVAL) {
+      for (let index = 0; index < NUM_STREAMS; index += 1) {
+        spawnStream(index);
+      }
+      lastSpawn = tick;
+    }
+
+    for (let index = ripples.length - 1; index >= 0; index -= 1) {
+      const ripple = ripples[index];
+      ripple.r += ripple.speed;
+      ripple.alpha -= 0.014;
+
+      if (ripple.alpha <= 0 || ripple.r > ripple.maxR) {
+        ripples.splice(index, 1);
+        continue;
+      }
+
+      const left = project(ripple.px - ripple.r, 0, ripple.pz);
+      const right = project(ripple.px + ripple.r, 0, ripple.pz);
+      const front = project(ripple.px, 0, ripple.pz + ripple.r);
+      const back = project(ripple.px, 0, ripple.pz - ripple.r);
+      const radiusX = (right.x - left.x) / 2;
+      const radiusY = (front.y - back.y) / 2;
+      const rippleX = (right.x + left.x) / 2;
+      const rippleY = (front.y + back.y) / 2;
+
+      ctx.beginPath();
+      ctx.ellipse(
+        rippleX,
+        rippleY,
+        Math.max(1, radiusX),
+        Math.max(0.5, radiusY),
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.strokeStyle = `rgba(180,215,255,${ripple.alpha.toFixed(2)})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    for (let index = particles.length - 1; index >= 0; index -= 1) {
+      const particle = particles[index];
+
+      if (particle.landed) {
+        particles.splice(index, 1);
+        continue;
+      }
+
+      particle.tail.push({ x: particle.x, y: particle.y, z: particle.z });
+      if (particle.tail.length > 6) {
+        particle.tail.shift();
+      }
+
+      particle.vy += GRAVITY;
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.z += particle.vz;
+
+      if (particle.y >= 0) {
+        particle.y = 0;
+        particle.landed = true;
+        spawnRipple(particle.x, particle.z);
+        continue;
+      }
+
+      for (let tailIndex = 0; tailIndex < particle.tail.length; tailIndex += 1) {
+        const tailPoint = particle.tail[tailIndex];
+        const projection = project(tailPoint.x, tailPoint.y, tailPoint.z);
+        const alpha = (tailIndex / particle.tail.length) * 0.35;
+        const size = Math.max(0.3, particle.size * 0.5 * projection.scale * 3);
+
+        ctx.beginPath();
+        ctx.arc(projection.x, projection.y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,225,255,${alpha.toFixed(2)})`;
+        ctx.fill();
+      }
+
+      const projection = project(particle.x, particle.y, particle.z);
+      const size = Math.max(0.8, particle.size * projection.scale * 3);
+
+      ctx.beginPath();
+      ctx.arc(projection.x, projection.y, size, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.fill();
+    }
+
+    const spoutGlow = ctx.createRadialGradient(
+      centerX,
+      baseY,
+      0,
+      centerX,
+      baseY,
+      Math.max(28, torusRadius * 0.22)
+    );
+    spoutGlow.addColorStop(0, "rgba(200,230,255,0.45)");
+    spoutGlow.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = spoutGlow;
+    ctx.beginPath();
+    ctx.arc(centerX, baseY, Math.max(28, torusRadius * 0.22), 0, Math.PI * 2);
+    ctx.fill();
+
+    const ringGlow = ctx.createRadialGradient(
+      centerX,
+      baseY,
+      torusRadius * 0.55 - 15,
+      centerX,
+      baseY,
+      torusRadius * 0.55 + 15
+    );
+    ringGlow.addColorStop(0, "rgba(0,0,0,0)");
+    ringGlow.addColorStop(0.5, "rgba(150,200,255,0.07)");
+    ringGlow.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = ringGlow;
+    ctx.beginPath();
+    ctx.ellipse(
+      centerX,
+      baseY,
+      torusRadius * 0.9,
+      torusRadius * 0.28,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    window.requestAnimationFrame(render);
+  };
+
+  resizeCanvas();
+  window.requestAnimationFrame(render);
+
+  if ("ResizeObserver" in window) {
+    resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    resizeObserver.observe(canvas);
+  } else {
+    window.addEventListener("resize", resizeCanvas);
+  }
 });
 
 const workTriggers = document.querySelectorAll("[data-work-trigger]");

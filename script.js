@@ -327,6 +327,9 @@ toricCanvases.forEach((canvas) => {
     alpha: false,
     desynchronized: true,
   });
+  const resetButton = canvas
+    .closest(".contact-card--animation")
+    ?.querySelector("[data-toric-reset]");
 
   if (!ctx) {
     return;
@@ -555,6 +558,12 @@ toricCanvases.forEach((canvas) => {
 
   resizeCanvas();
   window.requestAnimationFrame(render);
+
+  if (resetButton) {
+    resetButton.addEventListener("click", () => {
+      resetScene();
+    });
+  }
 
   if ("ResizeObserver" in window) {
     resizeObserver = new ResizeObserver(() => {

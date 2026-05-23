@@ -593,9 +593,9 @@ h2 {
 
 .work-modal__panel {
   position: relative;
-  width: min(980px, 100%);
+  width: min(1320px, calc(100vw - 2rem));
   max-height: calc(100vh - 2.4rem);
-  padding: 1rem;
+  padding: 1.2rem;
   border: 1px solid rgba(23, 19, 15, 0.08);
   border-radius: 30px;
   background: rgba(243, 235, 223, 0.95);
@@ -622,16 +622,19 @@ h2 {
 
 .work-modal__content {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
   gap: 1rem;
   align-items: start;
+}
+
+.work-modal__stage {
+  position: relative;
 }
 
 .work-modal__image {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: min(68vh, 620px);
+  height: min(78vh, 860px);
   border-radius: 24px;
   background-color: #dbc7af;
   overflow: hidden;
@@ -640,8 +643,48 @@ h2 {
     0 18px 40px rgba(23, 19, 15, 0.12);
 }
 
+.work-modal__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid rgba(255, 250, 243, 0.3);
+  border-radius: 999px;
+  background: rgba(23, 19, 15, 0.64);
+  color: rgba(255, 250, 243, 0.96);
+  font: inherit;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.work-modal__nav:hover,
+.work-modal__nav:focus-visible {
+  background: rgba(23, 19, 15, 0.82);
+  transform: translateY(-50%) scale(1.04);
+}
+
+.work-modal__nav--prev {
+  left: 1rem;
+}
+
+.work-modal__nav--next {
+  right: 1rem;
+}
+
+.work-modal__nav[hidden] {
+  display: none;
+}
+
 .work-modal__image--photo {
-  padding: 1rem;
+  padding: 1.15rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(23, 19, 15, 0.04)),
     linear-gradient(160deg, #e0ceb8 0%, #c7a47d 100%);
@@ -654,12 +697,21 @@ h2 {
 }
 
 .work-modal__copy {
-  padding: 0.8rem 0.45rem 0.25rem;
+  padding: 0.1rem 0.25rem 0.25rem;
+}
+
+.work-modal__counter {
+  margin-bottom: 0.55rem;
+  color: var(--accent-deep);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .work-modal__copy h2 {
-  margin-bottom: 0.7rem;
-  font-size: clamp(2.5rem, 5vw, 4.1rem);
+  margin-bottom: 0.5rem;
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
   line-height: 0.96;
 }
 
@@ -960,7 +1012,7 @@ h2 {
   }
 
   .work-modal__image {
-    height: min(58vh, 460px);
+    height: min(66vh, 700px);
   }
 }
 
@@ -1034,11 +1086,25 @@ h2 {
   }
 
   .work-modal__image {
-    height: min(42vh, 320px);
+    height: min(52vh, 420px);
   }
 
   .work-modal__copy {
     padding: 0.25rem 0.1rem 0;
+  }
+
+  .work-modal__nav {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.75rem;
+  }
+
+  .work-modal__nav--prev {
+    left: 0.6rem;
+  }
+
+  .work-modal__nav--next {
+    right: 0.6rem;
   }
 
   .footer-shell {

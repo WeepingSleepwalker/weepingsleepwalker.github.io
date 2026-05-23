@@ -584,13 +584,83 @@ if (workTriggers.length && workModal) {
   const modalTitle = workModal.querySelector("[data-work-modal-title]");
   const modalMeta = workModal.querySelector("[data-work-modal-meta]");
   const modalDescription = workModal.querySelector("[data-work-modal-description]");
+  const modalCounter = workModal.querySelector("[data-work-modal-counter]");
+  const prevButton = workModal.querySelector("[data-work-modal-prev]");
+  const nextButton = workModal.querySelector("[data-work-modal-next]");
   const closeButtons = workModal.querySelectorAll("[data-work-close]");
   const closeButton = workModal.querySelector(".work-modal__close");
   let activeTrigger = null;
+  let galleryItems = [];
+  let activeGalleryIndex = 0;
+
+  const setModalPlaceholderState = (image) => {
+    modalImage.className = "work-modal__image";
+    modalImage.style.backgroundImage = "";
+    modalAsset.hidden = true;
+    modalAsset.removeAttribute("src");
+    modalAsset.alt = "";
+
+    image.classList.forEach((className) => {
+      if (className.startsWith("work-image--")) {
+        modalImage.classList.add(className);
+      }
+    });
+  };
+
+  const updateGalleryControls = () => {
+    const hasGallery = galleryItems.length > 1;
+
+    if (prevButton) {
+      prevButton.hidden = !hasGallery;
+      prevButton.disabled = !hasGallery;
+    }
+
+    if (nextButton) {
+      nextButton.hidden = !hasGallery;
+      nextButton.disabled = !hasGallery;
+    }
+
+    if (modalCounter) {
+      modalCounter.hidden = galleryItems.length <= 1;
+
+      if (galleryItems.length > 1) {
+        modalCounter.textContent = `${activeGalleryIndex + 1} / ${galleryItems.length}`;
+      } else {
+        modalCounter.textContent = "";
+      }
+    }
+  };
+
+  const renderActiveGalleryItem = () => {
+    if (!galleryItems.length) {
+      updateGalleryControls();
+      return;
+    }
+
+    const currentItem = galleryItems[activeGalleryIndex];
+    modalImage.className = "work-modal__image work-modal__image--photo";
+    modalImage.style.backgroundImage = "";
+    modalAsset.hidden = false;
+    modalAsset.src = currentItem.src;
+    modalAsset.alt = currentItem.alt || modalTitle.textContent || "";
+    updateGalleryControls();
+  };
+
+  const stepGallery = (direction) => {
+    if (galleryItems.length <= 1) {
+      return;
+    }
+
+    activeGalleryIndex =
+      (activeGalleryIndex + direction + galleryItems.length) % galleryItems.length;
+    renderActiveGalleryItem();
+  };
 
   const closeWorkModal = () => {
     workModal.hidden = true;
     document.body.classList.remove("modal-open");
+    galleryItems = [];
+    activeGalleryIndex = 0;
 
     if (activeTrigger) {
       activeTrigger.focus();
@@ -602,6 +672,10 @@ if (workTriggers.length && workModal) {
     const card = trigger.closest(".work-card");
     const image = card?.querySelector(".work-image");
     const imageAsset = image?.querySelector(".work-image__asset");
+    const gallery = card?.querySelector(".work-gallery");
+    const galleryImages = gallery
+      ? Array.from(gallery.querySelectorAll(".work-gallery__item"))
+      : [];
     const title = card?.querySelector(".work-copy h2");
     const meta = card?.querySelector(".work-meta");
     const description = card?.querySelector(".work-description");
@@ -611,25 +685,6 @@ if (workTriggers.length && workModal) {
     }
 
     activeTrigger = trigger;
-    modalImage.className = "work-modal__image";
-    modalImage.style.backgroundImage = "";
-    modalAsset.hidden = true;
-    modalAsset.removeAttribute("src");
-    modalAsset.alt = "";
-
-    if (imageAsset) {
-      modalImage.classList.add("work-modal__image--photo");
-      modalAsset.hidden = false;
-      modalAsset.src = imageAsset.dataset.workModalSrc || imageAsset.currentSrc || imageAsset.src;
-      modalAsset.alt = imageAsset.alt || title.textContent.trim();
-    } else {
-      image.classList.forEach((className) => {
-        if (className.startsWith("work-image--")) {
-          modalImage.classList.add(className);
-        }
-      });
-    }
-
     modalTitle.textContent = title.textContent.trim();
     modalMeta.textContent = meta.textContent.trim();
 
@@ -639,6 +694,44 @@ if (workTriggers.length && workModal) {
     } else {
       modalDescription.textContent = "";
       modalDescription.hidden = true;
+    }
+
+    galleryItems = [];
+    activeGalleryIndex = 0;
+
+    if (imageAsset) {
+      const seenSources = new Set();
+      const primarySource =
+        imageAsset.dataset.workModalSrc || imageAsset.currentSrc || imageAsset.src;
+
+      if (primarySource) {
+        seenSources.add(primarySource);
+        galleryItems.push({
+          src: primarySource,
+          alt: imageAsset.alt || title.textContent.trim(),
+        });
+      }
+
+      galleryImages.forEach((galleryImage) => {
+        const source = galleryImage.currentSrc || galleryImage.src;
+
+        if (!source || seenSources.has(source)) {
+          return;
+        }
+
+        seenSources.add(source);
+        galleryItems.push({
+          src: source,
+          alt: galleryImage.alt || imageAsset.alt || title.textContent.trim(),
+        });
+      });
+    }
+
+    if (galleryItems.length) {
+      renderActiveGalleryItem();
+    } else {
+      setModalPlaceholderState(image);
+      updateGalleryControls();
     }
 
     workModal.hidden = false;
@@ -654,9 +747,31 @@ if (workTriggers.length && workModal) {
     button.addEventListener("click", closeWorkModal);
   });
 
+  prevButton?.addEventListener("click", () => {
+    stepGallery(-1);
+  });
+
+  nextButton?.addEventListener("click", () => {
+    stepGallery(1);
+  });
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !workModal.hidden) {
+    if (workModal.hidden) {
+      return;
+    }
+
+    if (event.key === "Escape") {
       closeWorkModal();
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      stepGallery(-1);
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      stepGallery(1);
     }
   });
 }

@@ -335,12 +335,6 @@ toricCanvases.forEach((canvas) => {
     return;
   }
 
-  const NUM_STREAMS = 48;
-  const STREAM_SPEED = 11.5;
-  const GRAVITY = 0.19;
-  const LAUNCH_SPREAD = 0.32;
-  const SPAWN_INTERVAL = 3;
-
   const ripples = [];
   const particles = [];
 
@@ -353,6 +347,12 @@ toricCanvases.forEach((canvas) => {
   let tick = 0;
   let lastSpawn = 0;
   let resizeObserver;
+  let streamCount = 48;
+  let streamSpeed = 11.5;
+  let gravity = 0.19;
+  let launchSpread = 0.32;
+  let spawnInterval = 3;
+  let tailLength = 6;
 
   const project = (x3, y3, z3) => {
     const scale = fov / (fov + z3 + height * 0.38);
@@ -365,10 +365,10 @@ toricCanvases.forEach((canvas) => {
   };
 
   const spawnStream = (streamIndex) => {
-    const angle = (streamIndex / NUM_STREAMS) * Math.PI * 2;
-    const horizontalSpeed = STREAM_SPEED * LAUNCH_SPREAD;
+    const angle = (streamIndex / streamCount) * Math.PI * 2;
+    const horizontalSpeed = streamSpeed * launchSpread;
     const verticalSpeed =
-      -STREAM_SPEED * Math.sqrt(1 - LAUNCH_SPREAD * LAUNCH_SPREAD);
+      -streamSpeed * Math.sqrt(1 - launchSpread * launchSpread);
 
     particles.push({
       x: 0,
@@ -405,18 +405,33 @@ toricCanvases.forEach((canvas) => {
 
   const resizeCanvas = () => {
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const compactLayout = rect.width <= 720;
+    const dpr = Math.min(window.devicePixelRatio || 1, compactLayout ? 1.25 : 1.5);
 
-    width = Math.max(360, Math.round(rect.width));
-    height = Math.max(420, Math.round(rect.height));
+    if (!rect.width || !rect.height) {
+      return;
+    }
+
+    width = Math.round(rect.width);
+    height = Math.round(rect.height);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    streamCount = compactLayout ? 32 : 48;
+    streamSpeed = compactLayout ? 9.4 : 11.5;
+    gravity = compactLayout ? 0.16 : 0.19;
+    launchSpread = compactLayout ? 0.28 : 0.32;
+    spawnInterval = compactLayout ? 4 : 3;
+    tailLength = compactLayout ? 4 : 6;
     centerX = width / 2;
-    baseY = height - Math.max(92, height * 0.16);
-    fov = Math.min(width * 0.9, height * 1.25);
-    torusRadius = Math.min(width * 0.24, height * 0.21);
+    baseY = height - Math.max(compactLayout ? 58 : 92, height * (compactLayout ? 0.12 : 0.16));
+    fov = compactLayout
+      ? Math.min(width * 1.15, height * 1.05)
+      : Math.min(width * 0.9, height * 1.25);
+    torusRadius = compactLayout
+      ? Math.min(width * 0.3, height * 0.24)
+      : Math.min(width * 0.24, height * 0.21);
 
     resetScene();
   };
@@ -427,8 +442,8 @@ toricCanvases.forEach((canvas) => {
 
     tick += 1;
 
-    if (tick - lastSpawn >= SPAWN_INTERVAL) {
-      for (let index = 0; index < NUM_STREAMS; index += 1) {
+    if (tick - lastSpawn >= spawnInterval) {
+      for (let index = 0; index < streamCount; index += 1) {
         spawnStream(index);
       }
       lastSpawn = tick;
@@ -477,11 +492,11 @@ toricCanvases.forEach((canvas) => {
       }
 
       particle.tail.push({ x: particle.x, y: particle.y, z: particle.z });
-      if (particle.tail.length > 6) {
+      if (particle.tail.length > tailLength) {
         particle.tail.shift();
       }
 
-      particle.vy += GRAVITY;
+      particle.vy += gravity;
       particle.x += particle.vx;
       particle.y += particle.vy;
       particle.z += particle.vz;

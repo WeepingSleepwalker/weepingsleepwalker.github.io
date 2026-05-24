@@ -800,7 +800,8 @@ h2 {
 }
 
 .contact-animation-frame {
-  min-height: clamp(38rem, 62vw, 48rem);
+  min-height: 0;
+  height: clamp(30rem, 62vw, 48rem);
   border-radius: 0;
 }
 
@@ -1151,7 +1152,7 @@ h2 {
   }
 
   .contact-animation-frame {
-    min-height: 24rem;
+    height: clamp(19rem, 78vw, 24rem);
   }
 
   .work-modal {

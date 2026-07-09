@@ -770,35 +770,6 @@ h2 {
   border-top: 1px solid rgba(20, 17, 15, 0.18);
 }
 
-.contact-animation-toolbar {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 0.8rem;
-}
-
-.contact-animation-reset {
-  border: 0;
-  border-radius: 0;
-  border-bottom: 1px solid currentColor;
-  background: transparent;
-  color: var(--ink);
-  padding: 0 0 0.12rem;
-  font: inherit;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    transform 180ms ease;
-}
-
-.contact-animation-reset:hover,
-.contact-animation-reset:focus-visible {
-  transform: translateY(-1px);
-}
-
 .contact-animation-frame {
   min-height: 0;
   height: clamp(30rem, 62vw, 48rem);

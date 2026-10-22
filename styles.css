@@ -675,10 +675,16 @@ h2 {
   background: transparent;
 }
 
-.work-modal__asset {
+.work-modal__asset,
+.work-modal__video {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.work-modal__asset[hidden],
+.work-modal__video[hidden] {
+  display: none;
 }
 
 .work-modal__copy {

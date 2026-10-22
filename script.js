@@ -596,6 +596,7 @@ const workModal = document.querySelector("[data-work-modal]");
 if (workTriggers.length && workModal) {
   const modalImage = workModal.querySelector("[data-work-modal-image]");
   const modalAsset = workModal.querySelector("[data-work-modal-asset]");
+  const modalVideo = workModal.querySelector("[data-work-modal-video]");
   const modalTitle = workModal.querySelector("[data-work-modal-title]");
   const modalMeta = workModal.querySelector("[data-work-modal-meta]");
   const modalDescription = workModal.querySelector("[data-work-modal-description]");
@@ -608,7 +609,23 @@ if (workTriggers.length && workModal) {
   let galleryItems = [];
   let activeGalleryIndex = 0;
 
+  const stopModalVideo = () => {
+    if (!modalVideo) {
+      return;
+    }
+
+    modalVideo.pause();
+    modalVideo.hidden = true;
+
+    if (modalVideo.hasAttribute("src")) {
+      modalVideo.removeAttribute("src");
+      modalVideo.load();
+    }
+  };
+
   const setModalPlaceholderState = (image) => {
+    stopModalVideo();
+    modalImage.setAttribute("aria-hidden", "true");
     modalImage.className = "work-modal__image";
     modalImage.style.backgroundImage = "";
     modalAsset.hidden = true;
@@ -624,15 +641,18 @@ if (workTriggers.length && workModal) {
 
   const updateGalleryControls = () => {
     const hasGallery = galleryItems.length > 1;
+    const hasVideo = galleryItems.some((item) => item.type === "video");
 
     if (prevButton) {
       prevButton.hidden = !hasGallery;
       prevButton.disabled = !hasGallery;
+      prevButton.setAttribute("aria-label", hasVideo ? "Previous view" : "Previous image");
     }
 
     if (nextButton) {
       nextButton.hidden = !hasGallery;
       nextButton.disabled = !hasGallery;
+      nextButton.setAttribute("aria-label", hasVideo ? "Next view" : "Next image");
     }
 
     if (modalCounter) {
@@ -653,8 +673,26 @@ if (workTriggers.length && workModal) {
     }
 
     const currentItem = galleryItems[activeGalleryIndex];
+    stopModalVideo();
     modalImage.className = "work-modal__image work-modal__image--photo";
     modalImage.style.backgroundImage = "";
+
+    if (currentItem.type === "video" && modalVideo) {
+      modalAsset.hidden = true;
+      modalAsset.removeAttribute("src");
+      modalImage.setAttribute("aria-hidden", "false");
+      modalVideo.hidden = false;
+      modalVideo.muted = true;
+      modalVideo.poster = currentItem.poster;
+      modalVideo.setAttribute("aria-label", `${modalTitle.textContent} sculpture video`);
+      modalVideo.src = currentItem.src;
+      // Native controls remain available if the browser blocks automatic playback.
+      modalVideo.play().catch(() => {});
+      updateGalleryControls();
+      return;
+    }
+
+    modalImage.setAttribute("aria-hidden", "true");
     modalAsset.hidden = false;
     modalAsset.src = currentItem.src;
     modalAsset.alt = currentItem.alt || modalTitle.textContent || "";
@@ -672,6 +710,7 @@ if (workTriggers.length && workModal) {
   };
 
   const closeWorkModal = () => {
+    stopModalVideo();
     workModal.hidden = true;
     document.body.classList.remove("modal-open");
     galleryItems = [];
@@ -716,6 +755,16 @@ if (workTriggers.length && workModal) {
 
     if (imageAsset) {
       const seenSources = new Set();
+      const videoSource = imageAsset.dataset.workVideoSrc;
+
+      if (videoSource && modalVideo) {
+        galleryItems.push({
+          type: "video",
+          src: videoSource,
+          poster: imageAsset.currentSrc || imageAsset.src,
+        });
+      }
+
       const primarySource =
         imageAsset.dataset.workModalSrc || imageAsset.currentSrc || imageAsset.src;
 
@@ -742,6 +791,9 @@ if (workTriggers.length && workModal) {
       });
     }
 
+    workModal.hidden = false;
+    document.body.classList.add("modal-open");
+
     if (galleryItems.length) {
       renderActiveGalleryItem();
     } else {
@@ -749,8 +801,6 @@ if (workTriggers.length && workModal) {
       updateGalleryControls();
     }
 
-    workModal.hidden = false;
-    document.body.classList.add("modal-open");
     closeButton?.focus();
   };
 
@@ -777,6 +827,10 @@ if (workTriggers.length && workModal) {
 
     if (event.key === "Escape") {
       closeWorkModal();
+      return;
+    }
+
+    if (event.target?.closest("video")) {
       return;
     }
 

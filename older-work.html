@@ -15,8 +15,8 @@
       rel="stylesheet"
     />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=478f273275b1" />
+    <script src="script.js?v=5317d07cd03c" defer></script>
   </head>
   <body class="page-work">
     <div class="page-backdrop" aria-hidden="true"></div>
@@ -43,9 +43,35 @@
     </header>
 
     <main class="shell page-main">
+      <section class="page-intro" data-archive-gate aria-labelledby="archive-gate-title">
+        <p class="eyebrow">Older Work</p>
+        <h1 id="archive-gate-title">Enter passcode.</h1>
+        <form class="archive-gate__form" data-archive-form>
+          <label for="archive-passcode">Passcode</label>
+          <div class="archive-gate__controls">
+            <input
+              id="archive-passcode"
+              name="passcode"
+              type="password"
+              autocomplete="current-password"
+              aria-describedby="archive-passcode-error"
+              data-archive-passcode
+              required
+            />
+            <button class="button button-primary" type="submit">View older works</button>
+          </div>
+          <p id="archive-passcode-error" class="archive-gate__error" data-archive-error role="alert" hidden>
+            Incorrect passcode. Please try again.
+          </p>
+        </form>
+        <a class="text-link" href="work.html">View recent ceramic figures</a>
+        <noscript><p>Enable JavaScript to enter the passcode.</p></noscript>
+      </section>
+
+      <div data-archive-content hidden>
       <section class="page-intro" data-reveal>
         <p class="eyebrow">Selected Work</p>
-        <h1>Older works.</h1>
+        <h1 tabindex="-1">Older works.</h1>
         <a class="text-link" href="work.html">View recent ceramic figures</a>
       </section>
 
@@ -222,6 +248,7 @@
             </div>
           </div>
         </div>
+      </div>
       </div>
     </main>
 

@@ -443,6 +443,45 @@ h2 {
   gap: 3rem 2rem;
 }
 
+.archive-gate__form {
+  max-width: 30rem;
+  margin: 1.5rem 0;
+}
+
+.archive-gate__form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.archive-gate__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.archive-gate__controls input {
+  width: min(100%, 18rem);
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.archive-gate__controls button {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  font: inherit;
+  cursor: pointer;
+}
+
+.archive-gate__error {
+  margin: 0.75rem 0 0;
+  color: #8b3028;
+}
+
 .work-card {
   overflow: visible;
   border-radius: 0;

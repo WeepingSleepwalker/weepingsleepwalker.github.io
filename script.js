@@ -16,6 +16,60 @@ if (menuToggle && siteNav) {
   });
 }
 
+const archiveGate = document.querySelector("[data-archive-gate]");
+const archiveContent = document.querySelector("[data-archive-content]");
+const archiveForm = document.querySelector("[data-archive-form]");
+
+if (archiveGate && archiveContent && archiveForm) {
+  const passcodeInput = archiveForm.querySelector("[data-archive-passcode]");
+  const passcodeError = archiveForm.querySelector("[data-archive-error]");
+  const accessKey = "francis-studio-archive-unlocked";
+
+  const showArchive = () => {
+    archiveGate.hidden = true;
+    archiveContent.hidden = false;
+    passcodeInput.value = "";
+    passcodeError.hidden = true;
+    passcodeInput.removeAttribute("aria-invalid");
+  };
+
+  try {
+    if (sessionStorage.getItem(accessKey) === "1") {
+      showArchive();
+    }
+  } catch {
+    // The passcode form also works when browser storage is unavailable.
+  }
+
+  archiveForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    // This is a browsing gate for a static site, not server-side authentication.
+    if (passcodeInput.value !== "password") {
+      passcodeError.hidden = false;
+      passcodeInput.setAttribute("aria-invalid", "true");
+      passcodeInput.focus();
+      passcodeInput.select();
+      return;
+    }
+
+    showArchive();
+
+    try {
+      sessionStorage.setItem(accessKey, "1");
+    } catch {
+      // Keep this visit unlocked even when browser storage is unavailable.
+    }
+
+    archiveContent.querySelector("h1")?.focus();
+  });
+
+  passcodeInput.addEventListener("input", () => {
+    passcodeError.hidden = true;
+    passcodeInput.removeAttribute("aria-invalid");
+  });
+}
+
 const revealItems = document.querySelectorAll("[data-reveal]");
 
 if ("IntersectionObserver" in window) {

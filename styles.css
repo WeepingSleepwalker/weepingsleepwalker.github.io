@@ -523,12 +523,6 @@ h2 {
     0 18px 36px rgba(23, 19, 15, 0.12);
 }
 
-/* Lift the standing blue figure's midtones in both thumbnail and expanded view.
-   The gamma curve holds black and white endpoints to preserve highlight detail. */
-.page-work img[src$="/Consanguinity_blue-figure_corrected.jpg"] {
-  filter: url("#blue-figure-midtones");
-}
-
 .work-copy {
   padding: 0;
 }

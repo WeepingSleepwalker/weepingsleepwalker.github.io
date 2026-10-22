@@ -15,10 +15,21 @@
       rel="stylesheet"
     />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=2026-corrected-photos" />
+    <link rel="stylesheet" href="styles.css?v=2026-blue-figure-midtones" />
     <script src="script.js" defer></script>
   </head>
   <body class="page-work">
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" focusable="false" style="position: absolute; overflow: hidden;">
+      <defs>
+        <filter id="blue-figure-midtones" color-interpolation-filters="sRGB">
+          <feComponentTransfer>
+            <feFuncR type="gamma" amplitude="1" exponent="0.72" offset="0" />
+            <feFuncG type="gamma" amplitude="1" exponent="0.72" offset="0" />
+            <feFuncB type="gamma" amplitude="1" exponent="0.72" offset="0" />
+          </feComponentTransfer>
+        </filter>
+      </defs>
+    </svg>
     <div class="page-backdrop" aria-hidden="true"></div>
     <header class="site-header">
       <div class="shell header-shell">

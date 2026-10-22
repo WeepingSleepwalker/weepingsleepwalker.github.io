@@ -532,6 +532,13 @@ h2 {
   font-size: 2rem;
 }
 
+/* Interpretive captions use the same title treatment in the grid and lightbox. */
+.page-work--captioned .work-copy h2,
+.page-work--captioned .work-modal__copy h2 {
+  font-weight: 700;
+  font-style: italic;
+}
+
 .work-meta {
   margin-bottom: 0.9rem;
   color: var(--accent-deep);
@@ -1166,5 +1173,22 @@ h2 {
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 0 1.35rem;
+  }
+}
+
+@media print {
+  .page-work--captioned .work-grid {
+    display: block;
+  }
+
+  .page-work--captioned .work-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 2rem;
+  }
+
+  .page-work--captioned [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }

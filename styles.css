@@ -523,6 +523,13 @@ h2 {
     0 18px 36px rgba(23, 19, 15, 0.12);
 }
 
+/* Modest display correction for the recent photos; original files stay intact.
+   Apply the same lift to thumbnails and expanded images. */
+.page-work--recent .work-image__asset,
+.page-work--recent .work-modal__asset {
+  filter: brightness(1.14);
+}
+
 .work-copy {
   padding: 0;
 }

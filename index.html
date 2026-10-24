@@ -21,11 +21,43 @@
       rel="stylesheet"
     />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=3e6a3c21dbbd" />
+    <script>
+      try {
+        if (
+          sessionStorage.getItem("francis-studio-welcome-seen") !== "1" &&
+          !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          document.documentElement.classList.add("welcome-pending");
+          window.welcomeFallback = window.setTimeout(() => {
+            document.documentElement.classList.remove("welcome-pending");
+          }, 8000);
+        }
+      } catch {
+        // Show the homepage directly when session storage is unavailable.
+      }
+    </script>
+    <script src="script.js?v=0fddf9f93b6e" defer></script>
   </head>
   <body class="page-home">
     <div class="page-backdrop" aria-hidden="true"></div>
+    <section class="welcome-screen" data-welcome-screen aria-label="Welcome" hidden>
+      <div class="welcome-screen__content">
+        <video
+          class="welcome-screen__animation"
+          data-welcome-video
+          data-src="assets/gifs/welcome-spiral.mp4"
+          width="380"
+          height="380"
+          muted
+          playsinline
+          preload="none"
+          aria-hidden="true"
+        ></video>
+        <p class="welcome-screen__line">a planet made of diamonds and a finite set of rules</p>
+        <button class="welcome-screen__enter" type="button" data-welcome-enter>Enter site</button>
+      </div>
+    </section>
     <header class="site-header">
       <div class="shell header-shell">
         <a class="brand" href="index.html">Francis Chung</a>

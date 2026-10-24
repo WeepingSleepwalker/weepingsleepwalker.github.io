@@ -1,3 +1,69 @@
+const welcomeScreen = document.querySelector("[data-welcome-screen]");
+
+if (welcomeScreen && document.documentElement.classList.contains("welcome-pending")) {
+  const welcomeVideo = welcomeScreen.querySelector("[data-welcome-video]");
+  const enterButton = welcomeScreen.querySelector("[data-welcome-enter]");
+  const pageSections = document.querySelectorAll("body > header, body > main, body > footer");
+  let leaving = false;
+  let playbackTimer;
+  let cleanupTimer;
+
+  const finishWelcome = () => {
+    window.clearTimeout(playbackTimer);
+    window.clearTimeout(cleanupTimer);
+    const restoreFocus = welcomeScreen.contains(document.activeElement);
+    welcomeScreen.hidden = true;
+    document.body.classList.remove("welcome-open");
+    pageSections.forEach((section) => { section.inert = false; });
+    welcomeVideo.pause();
+    welcomeVideo.removeAttribute("src");
+    welcomeVideo.load();
+    if (restoreFocus) {
+      document.querySelector(".brand")?.focus({ preventScroll: true });
+    }
+  };
+
+  const enterSite = () => {
+    if (leaving) return;
+    leaving = true;
+    window.clearTimeout(playbackTimer);
+    window.clearTimeout(safetyTimer);
+    welcomeScreen.classList.add("is-leaving");
+    document.body.classList.remove("welcome-open");
+    cleanupTimer = window.setTimeout(finishWelcome, 450);
+  };
+
+  welcomeScreen.hidden = false;
+  pageSections.forEach((section) => { section.inert = true; });
+  document.body.classList.add("welcome-open");
+  document.documentElement.classList.remove("welcome-pending");
+  window.clearTimeout(window.welcomeFallback);
+  try {
+    sessionStorage.setItem("francis-studio-welcome-seen", "1");
+  } catch {
+    // The timed welcome still completes if storage becomes unavailable.
+  }
+
+  // Never hold the homepage behind a slow or unavailable video.
+  const safetyTimer = window.setTimeout(enterSite, 6000);
+  welcomeVideo.addEventListener("playing", () => {
+    playbackTimer = window.setTimeout(enterSite, 4000);
+  }, { once: true });
+  welcomeVideo.addEventListener("ended", enterSite, { once: true });
+  welcomeVideo.addEventListener("error", enterSite, { once: true });
+  enterButton.addEventListener("click", enterSite);
+  welcomeScreen.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") enterSite();
+  });
+  window.addEventListener("pagehide", () => {
+    window.clearTimeout(safetyTimer);
+    finishWelcome();
+  }, { once: true });
+  enterButton.focus({ preventScroll: true });
+  welcomeVideo.src = welcomeVideo.dataset.src;
+  welcomeVideo.play()?.catch(enterSite);
+}
+
 const menuToggle = document.querySelector("[data-menu-toggle]");
 const siteNav = document.querySelector("[data-site-nav]");
 
@@ -240,6 +306,11 @@ if (homeCanvas) {
     };
 
     const render = (now = 0) => {
+      if (document.body.classList.contains("welcome-open")) {
+        animationFrameId = window.requestAnimationFrame(render);
+        return;
+      }
+
       const frameDelta = lastFrameTime ? Math.min(32, now - lastFrameTime) : 16.67;
       const deltaFactor = frameDelta / 16.67;
 

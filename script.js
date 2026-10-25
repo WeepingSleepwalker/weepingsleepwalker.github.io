@@ -47,7 +47,8 @@ if (welcomeScreen && document.documentElement.classList.contains("welcome-pendin
   // Never hold the homepage behind a slow or unavailable video.
   const safetyTimer = window.setTimeout(enterSite, 6000);
   welcomeVideo.addEventListener("playing", () => {
-    playbackTimer = window.setTimeout(enterSite, 4000);
+    window.clearTimeout(safetyTimer);
+    playbackTimer = window.setTimeout(enterSite, 20000);
   }, { once: true });
   welcomeVideo.addEventListener("ended", enterSite, { once: true });
   welcomeVideo.addEventListener("error", enterSite, { once: true });

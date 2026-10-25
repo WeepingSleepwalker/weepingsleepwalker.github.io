@@ -3,6 +3,8 @@ const welcomeScreen = document.querySelector("[data-welcome-screen]");
 if (welcomeScreen && document.documentElement.classList.contains("welcome-pending")) {
   const welcomeVideo = welcomeScreen.querySelector("[data-welcome-video]");
   const enterButton = welcomeScreen.querySelector("[data-welcome-enter]");
+  const playButton = welcomeScreen.querySelector("[data-welcome-play]");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pageSections = document.querySelectorAll("body > header, body > main, body > footer");
   let leaving = false;
   let playbackTimer;
@@ -33,7 +35,16 @@ if (welcomeScreen && document.documentElement.classList.contains("welcome-pendin
     cleanupTimer = window.setTimeout(finishWelcome, 450);
   };
 
+  const offerPlayback = () => {
+    if (leaving || welcomeScreen.hidden) return;
+    window.clearTimeout(safetyTimer);
+    playButton.hidden = false;
+    window.clearTimeout(playbackTimer);
+    playbackTimer = window.setTimeout(enterSite, 20000);
+  };
+
   welcomeScreen.hidden = false;
+  welcomeVideo.muted = true;
   pageSections.forEach((section) => { section.inert = true; });
   document.body.classList.add("welcome-open");
   document.documentElement.classList.remove("welcome-pending");
@@ -44,14 +55,23 @@ if (welcomeScreen && document.documentElement.classList.contains("welcome-pendin
     // The timed welcome still completes if storage becomes unavailable.
   }
 
-  // Never hold the homepage behind a slow or unavailable video.
-  const safetyTimer = window.setTimeout(enterSite, 6000);
+  // Offer a tap to play when mobile autoplay or loading is restricted.
+  const safetyTimer = window.setTimeout(offerPlayback, 6000);
   welcomeVideo.addEventListener("playing", () => {
     window.clearTimeout(safetyTimer);
+    window.clearTimeout(playbackTimer);
+    if (document.activeElement === playButton) {
+      enterButton.focus({ preventScroll: true });
+    }
+    playButton.hidden = true;
     playbackTimer = window.setTimeout(enterSite, 20000);
   }, { once: true });
   welcomeVideo.addEventListener("ended", enterSite, { once: true });
   welcomeVideo.addEventListener("error", enterSite, { once: true });
+  playButton.addEventListener("click", () => {
+    welcomeVideo.src = welcomeVideo.dataset.src;
+    welcomeVideo.play()?.catch(offerPlayback);
+  });
   enterButton.addEventListener("click", enterSite);
   welcomeScreen.addEventListener("keydown", (event) => {
     if (event.key === "Escape") enterSite();
@@ -61,8 +81,12 @@ if (welcomeScreen && document.documentElement.classList.contains("welcome-pendin
     finishWelcome();
   }, { once: true });
   enterButton.focus({ preventScroll: true });
-  welcomeVideo.src = welcomeVideo.dataset.src;
-  welcomeVideo.play()?.catch(enterSite);
+  if (reduceMotion) {
+    offerPlayback();
+  } else {
+    welcomeVideo.src = welcomeVideo.dataset.src;
+    welcomeVideo.play()?.catch(offerPlayback);
+  }
 }
 
 const menuToggle = document.querySelector("[data-menu-toggle]");
